@@ -5,7 +5,7 @@ import random
 image = [[(0,0,0) for _ in range(1280)] for _ in range(900)]
 image = np.array(image).astype('uint8')
 
-f = open("gen.txt", "r")
+f = open("gen_32.txt", "r")
 
 data = f.readlines()
 for idx, i in enumerate(data):
@@ -63,11 +63,12 @@ def random_line(data):
 
 #Generer lab
 #data = random_line(data)
-image = grid(image, 10)
+block_size = 32
+image = grid(image, block_size)
 for idr, row in enumerate(data):   
     for idc, col in enumerate(row):
         if data[idr][idc] == 'X':
-            image = wall(idr, idc, image, 10)
+            image = wall(idr, idc, image, block_size)
 
 cv2.imshow('test', image)
 cv2.waitKey(0)

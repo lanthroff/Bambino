@@ -3,10 +3,7 @@ import numpy as np
 
 img = cv2.imread('background.png')
 
-for i in img:
-    for j in i:
-        if not j[0] == 0:
-            print(j)
-            break
+
+print(img[0:32,0:32, :].shape)
 
 

@@ -4,8 +4,8 @@ import cv2
 class Hero:
     def __init__(self,
                  anim,
-                 xpos,
-                 ypos,
+                 ipos,
+                 jpos,
                  dist,
                  transparent,
                  collider):
@@ -14,13 +14,15 @@ class Hero:
         self.image = pygame.image.load(anim["right"][0])
         for side in anim:
             setattr(self, side, [pygame.image.load(anim[side][i]) for i in range(3)])
-        self.xpos = xpos
-        self.ypos = ypos
-        self.dist = dist
+        self.ipos = ipos
+        self.jpos = jpos
+        self.xpos = jpos*32
+        self.ypos = ipos*32
         self.move = 0
+        self.dist = dist
         self.stance = 0
         self.rotation = ["right", "down", "left", "up"]
-        self.collider = cv2.imread(collider)
+        self.collider = collider
         self.reverto = {False:{"right":"right",
                                "left":"left",
                                "up":"up",
@@ -41,34 +43,20 @@ class Hero:
         #Transparent option
         if transparent == "white":
             self.image.set_colorkey((255, 255, 255))
+        if transparent == "black":
+            self.image.set_colorkey((0, 0, 0))
         
     def collide(self, reverse):
         if self.reverto[reverse][self.rotation[self.direction]] == "right":
-            for x in range(self.xpos+32, self.xpos+self.dist+32):
-                if self.collider[self.ypos][x][0] == 255:
-                    return True
-                if self.collider[self.ypos+32][x][0] == 255:
-                    return True
-                
+            return self.collider[self.ipos][self.jpos+1] == 'X'
+                        
         elif self.reverto[reverse][self.rotation[self.direction]] == "left":
-            for x in range(self.xpos, self.xpos-self.dist, -1):
-                if self.collider[self.ypos][x][0] == 255:
-                    return True
-                if self.collider[self.ypos+32][x][0] == 255:
-                    return True
-                
+            return self.collider[self.ipos][self.jpos-1] == 'X'
+      
         elif self.reverto[reverse][self.rotation[self.direction]] == "down":
-            for y in range(self.ypos+32, self.ypos+self.dist+32):
-                if self.collider[y][self.xpos][0] == 255:
-                    return True
-                if self.collider[y][self.xpos+32][0] == 255:
-                    return True
-                
+            return self.collider[self.ipos+1][self.jpos] == 'X'
+        
         elif self.reverto[reverse][self.rotation[self.direction]] == "up":
-            for y in range(self.ypos, self.ypos-self.dist, -1):
-                if self.collider[y][self.xpos][0] == 255:
-                    return True
-                if self.collider[y][self.xpos+32][0] == 255:
-                    return True
+            return self.collider[self.ipos-1][self.jpos] == 'X'
+                
 
-        return False

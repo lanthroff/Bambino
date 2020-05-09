@@ -1,13 +1,13 @@
 import pygame
 import time
+from editor import Editor
 
 class Global_Controller:
     def __init__(self,
                  screen_width,
                  screen_height,
                  title,
-                 logo,
-                 background
+                 logo
                  ):
 
         pygame.init()
@@ -18,18 +18,67 @@ class Global_Controller:
         self.logo = pygame.image.load(logo)
         pygame.display.set_icon(self.logo)
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
-        self.background = pygame.image.load(background)
         self.obj = []
 
+    def main_screen(self):
+        done = True
+        color_1 = (255,255,0)
+        color_2 = (0,255,0)
+        while done:
+            editor = start = False
+            start_color = editor_color = color_1
+            b1_color = b2_color = color_2
+            x, y = pygame.mouse.get_pos()
+            if x > 450 and x < 750 and y > 200 and y < 300:
+                b1_color = color_1
+                editor_color = color_2
+                editor = True
+            if x > 450 and x < 750 and y > 400 and y < 500:
+                b2_color = color_1
+                start_color = color_2
+                start = True
+                
+            pygame.draw.rect(self.screen, b1_color,(450,200,300,100))
+            pygame.draw.rect(self.screen, b2_color,(450,400,300,100))
 
-    def loop(self, fps, hero, hist, api):
+            #Event handler
+            for event in pygame.event.get():
+                        
+                #Mouse Click event
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if editor:
+                        Editor.start(self)
+                        done = False
+                    if start:
+                        done = False
+                #Escape condition        
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        done = False
+            #Map editor text
+            font = pygame.font.SysFont("comicsansms", 40)
+            text = font.render("Map Editor", False, editor_color)
+            self.screen.blit(text,(600 - text.get_width() // 2,
+                                   250 - text.get_height() // 2))
+            #Start
+            font = pygame.font.SysFont("comicsansms", 40)
+            text = font.render("Start", False, start_color)
+            self.screen.blit(text,(600 - text.get_width() // 2,
+                                   450 - text.get_height() // 2))
+            #Show
+            pygame.display.flip()
+            
+    def loop(self, fps, hero, hist, api, background):
+        self.background = pygame.image.load(background)
         deltax = deltay = 0
         t0 = time.time()
         done = True
         
         while done:
+            
             #Escape condition
             for event in pygame.event.get():
+                                   
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         done = False
@@ -39,8 +88,9 @@ class Global_Controller:
             if not api.action == "":
                 api.ready = False
                 if hero.move == 0:
-                    if api.action == "check":
 
+                    if api.action == "check":
+                        deltax = deltay = 0
                         hero.pleasure += hero.interaction["check"]
                         api.resp = hero.interaction["check"]
 
@@ -50,7 +100,8 @@ class Global_Controller:
                             api.touch_sensor = -1
                             
                     elif api.action == "turn left":
-
+                        
+                        deltax = deltay = 0
                         hero.pleasure += hero.interaction["turn"]
                         api.resp = hero.interaction["turn"]
                         hero.direction -= 1
@@ -61,6 +112,7 @@ class Global_Controller:
                         
                     elif api.action == "turn right":
 
+                        deltax = deltay = 0
                         hero.pleasure += hero.interaction["turn"]
                         api.resp = hero.interaction["turn"]
                         hero.direction += 1
@@ -73,10 +125,9 @@ class Global_Controller:
 
                         if hero.rotation[hero.direction] == "right":
                             if not hero.collide(False):
+                                
                                 hero.pleasure += hero.interaction["forward"]
                                 api.resp = hero.interaction["forward"]
-                                if hero.pleasure > 100:
-                                    hero.pleasure = 100
                                 deltax = 1
                                 deltay = 0
                                 hero.move = hero.dist
@@ -84,15 +135,14 @@ class Global_Controller:
                             else:
                                 hero.pleasure += hero.interaction["wall"]
                                 api.resp = hero.interaction["wall"]
-                                if hero.pleasure < -100:
-                                    hero.pleasure = -100
+                                deltax = 0
+                                deltay = 0
                                     
                         elif hero.rotation[hero.direction] == "down":
                             if not hero.collide(False):
+                                
                                 hero.pleasure += hero.interaction["forward"]
                                 api.resp = hero.interaction["forward"]
-                                if hero.pleasure > 100:
-                                    hero.pleasure = 100
                                 deltax = 0
                                 deltay = 1
                                 hero.move = hero.dist
@@ -100,15 +150,14 @@ class Global_Controller:
                             else:
                                 hero.pleasure += hero.interaction["wall"]
                                 api.resp = hero.interaction["wall"]
-                                if hero.pleasure < -100:
-                                    hero.pleasure = -100
+                                deltax = 0
+                                deltay = 0
                                     
                         elif hero.rotation[hero.direction] == "left":
                             if not hero.collide(False):
+                                
                                 hero.pleasure += hero.interaction["forward"]
                                 api.resp = hero.interaction["forward"]
-                                if hero.pleasure > 100:
-                                    hero.pleasure = 100
                                 deltax = -1
                                 deltay = 0
                                 hero.move = hero.dist
@@ -116,15 +165,14 @@ class Global_Controller:
                             else:
                                 hero.pleasure += hero.interaction["wall"]
                                 api.resp = hero.interaction["wall"]
-                                if hero.pleasure < -100:
-                                    hero.pleasure = -100
+                                deltax = 0
+                                deltay = 0
                                     
                         elif hero.rotation[hero.direction] == "up":
                             if not hero.collide(False):
+                                
                                 hero.pleasure += hero.interaction["forward"]
                                 api.resp = hero.interaction["forward"]
-                                if hero.pleasure > 100:
-                                    hero.pleasure = 100
                                 deltax = 0
                                 deltay = -1
                                 hero.move = hero.dist
@@ -132,17 +180,16 @@ class Global_Controller:
                             else:
                                 hero.pleasure += hero.interaction["wall"]
                                 api.resp = hero.interaction["wall"]
-                                if hero.pleasure < -100:
-                                    hero.pleasure = -100
+                                deltax = 0
+                                deltay = 0
                             
                     elif api.action == "backward":
-                        api.action = ""
+    
                         if hero.rotation[hero.direction] == "right":
                             if not hero.collide(True):
+                                
                                 hero.pleasure += hero.interaction["backward"]
                                 api.resp = hero.interaction["backward"]
-                                if hero.pleasure > 100:
-                                    hero.pleasure = 100
                                 deltax = -1
                                 deltay = 0
                                 hero.move = hero.dist
@@ -150,15 +197,14 @@ class Global_Controller:
                             else:
                                 hero.pleasure += hero.interaction["wall"]
                                 api.resp = hero.interaction["wall"]
-                                if hero.pleasure < -100:
-                                    hero.pleasure = -100
+                                deltax = 0
+                                deltay = 0
                                     
                         elif hero.rotation[hero.direction] == "down":
                             if not hero.collide(True):
+                                
                                 hero.pleasure += hero.interaction["backward"]
                                 api.resp = hero.interaction["backward"]
-                                if hero.pleasure > 100:
-                                    hero.pleasure = 100
                                 deltax = 0
                                 deltay = -1
                                 hero.move = hero.dist
@@ -166,15 +212,14 @@ class Global_Controller:
                             else:
                                 hero.pleasure += hero.interaction["wall"]
                                 api.resp = hero.interaction["wall"]
-                                if hero.pleasure < -100:
-                                    hero.pleasure = -100
+                                deltax = 0
+                                deltay = 0
                                     
                         elif hero.rotation[hero.direction] == "left":
                             if not hero.collide(True):
+                                
                                 hero.pleasure += hero.interaction["backward"]
                                 api.resp = hero.interaction["backward"]
-                                if hero.pleasure > 100:
-                                    hero.pleasure = 100
                                 deltax = 1
                                 deltay = 0
                                 hero.move = hero.dist
@@ -182,15 +227,14 @@ class Global_Controller:
                             else:
                                 hero.pleasure += hero.interaction["wall"]
                                 api.resp = hero.interaction["wall"]
-                                if hero.pleasure < -100:
-                                    hero.pleasure = -100
+                                deltax = 0
+                                deltay = 0
                                     
                         elif hero.rotation[hero.direction] == "up":
                             if not hero.collide(True):
+                                
                                 hero.pleasure += hero.interaction["backward"]
                                 api.resp = hero.interaction["backward"]
-                                if hero.pleasure > 100:
-                                    hero.pleasure = 100
                                 deltax = 0
                                 deltay = 1
                                 hero.move = hero.dist
@@ -198,10 +242,14 @@ class Global_Controller:
                             else:
                                 hero.pleasure += hero.interaction["wall"]
                                 api.resp = hero.interaction["wall"]
-                                if hero.pleasure < -100:
-                                    hero.pleasure = -100
-                 
-                        
+                                deltax = 0
+                                deltay = 0
+                                
+            if hero.pleasure < -100:
+                hero.pleasure = -100
+            elif hero.pleasure > 100:
+                hero.pleasure = 100
+                                    
             if hero.move > 0:
                 dt = time.time() - t0
                 wait = 1/fps - dt
@@ -215,10 +263,18 @@ class Global_Controller:
                 if hero.stance == 3:
                     hero.stance = 0
                 hero.image = getattr(hero, hero.rotation[hero.direction])[hero.stance]
-                
-            elif hero.move == 0:
+    
+            elif hero.move == 0 and not api.ready:
+                #Update ipos and jpos
+                hero.ipos += deltay
+                hero.jpos += deltax
+                            
+                #Set hero to neutral position
                 hero.image = getattr(hero, hero.rotation[hero.direction])[0]
+
+                #Reset Api
                 api.ready = True
+                
             #Use the api
             api.work()
 
