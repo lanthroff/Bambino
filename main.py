@@ -21,11 +21,17 @@ try:
         collision_map[idx] = [h for h in collision_map[idx]]
 except OSError as err:
     background = 'sprites/background.png'
-    
-hero_anim = {"left":{0:"sprites/left_0.png",1:"sprites/left_1.png",2:"sprites/left_2.png"},
-               "right":{0:"sprites/right_0.png",1:"sprites/right_1.png",2:"sprites/right_2.png"},
-               "up":{0:"sprites/up_0.png",1:"sprites/up_1.png",2:"sprites/up_2.png"},
-               "down":{0:"sprites/down_0.png",1:"sprites/down_1.png",2:"sprites/down_2.png"},
+
+try:
+    f = open('char_selection.txt')
+    gc.heroskin = f.read().replace('\n','')
+except OSError as err:
+    pass
+
+hero_anim = {"left":{0:"sprites/"+ gc.heroskin +"/left_0.png",1:"sprites/"+ gc.heroskin +"/left_1.png",2:"sprites/"+ gc.heroskin +"/left_2.png"},
+               "right":{0:"sprites/"+ gc.heroskin +"/right_0.png",1:"sprites/"+ gc.heroskin +"/right_1.png",2:"sprites/"+ gc.heroskin +"/right_2.png"},
+               "up":{0:"sprites/"+ gc.heroskin +"/up_0.png",1:"sprites/"+ gc.heroskin +"/up_1.png",2:"sprites/"+ gc.heroskin +"/up_2.png"},
+               "down":{0:"sprites/"+ gc.heroskin +"/down_0.png",1:"sprites/"+ gc.heroskin +"/down_1.png",2:"sprites/"+ gc.heroskin +"/down_2.png"},
                }
 
 hero = Hero(hero_anim, 1, 1, 32, None, collision_map)

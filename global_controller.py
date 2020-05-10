@@ -1,6 +1,7 @@
 import pygame
 import time
 from editor import Editor
+from selection import Selection
 
 class Global_Controller:
     def __init__(self,
@@ -19,27 +20,36 @@ class Global_Controller:
         pygame.display.set_icon(self.logo)
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         self.obj = []
+        self.heroskin = "bambino_17"
 
     def main_screen(self):
         done = True
         color_1 = (255,255,0)
         color_2 = (0,255,0)
         while done:
-            editor = start = False
-            start_color = editor_color = color_1
-            b1_color = b2_color = color_2
+            pygame.draw.rect(self.screen, (0,0,0),(0,0,1280,900))
+            editor = start = hero_sel = False
+            start_color = editor_color = hero_color = color_1
+            b1_color = b2_color = b3_color = color_2
             x, y = pygame.mouse.get_pos()
-            if x > 450 and x < 750 and y > 200 and y < 300:
-                b1_color = color_1
-                editor_color = color_2
-                editor = True
-            if x > 450 and x < 750 and y > 400 and y < 500:
-                b2_color = color_1
-                start_color = color_2
-                start = True
+            if x > 450 and x < 750:
+                if y > 200 and y < 300:
+                    b1_color = color_1
+                    editor_color = color_2
+                    editor = True
+                if y > 400 and y < 500:
+                    b2_color = color_1
+                    start_color = color_2
+                    start = True
+                if y > 600 and y < 700:
+                    b3_color = color_1
+                    hero_color = color_2
+                    hero_sel = True
+            
                 
             pygame.draw.rect(self.screen, b1_color,(450,200,300,100))
             pygame.draw.rect(self.screen, b2_color,(450,400,300,100))
+            pygame.draw.rect(self.screen, b3_color,(450,600,300,100))
 
             #Event handler
             for event in pygame.event.get():
@@ -48,9 +58,11 @@ class Global_Controller:
                 if event.type == pygame.MOUSEBUTTONUP:
                     if editor:
                         Editor.start(self)
-                        done = False
                     if start:
                         done = False
+                    if hero_sel:
+                        Selection.start(self)
+                        
                 #Escape condition        
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
@@ -65,6 +77,13 @@ class Global_Controller:
             text = font.render("Start", False, start_color)
             self.screen.blit(text,(600 - text.get_width() // 2,
                                    450 - text.get_height() // 2))
+
+            #Start
+            font = pygame.font.SysFont("comicsansms", 40)
+            text = font.render("Hero Selection", False, hero_color)
+            self.screen.blit(text,(600 - text.get_width() // 2,
+                                   650 - text.get_height() // 2))
+            
             #Show
             pygame.display.flip()
             
